@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Windows 95 React</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+      
+      /* Custom cursor for that authentic feel */
+      body {
+        cursor: default;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        user-select: none;
+        overflow: hidden;
+      }
+      
+      /* Win95 Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 16px;
+        height: 16px;
+        background: #dfdfdf;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #c0c0c0;
+        border: 2px solid #fff;
+        border-right-color: #000;
+        border-bottom-color: #000;
+      }
+      ::-webkit-scrollbar-button {
+        background: #c0c0c0;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #fff;
+        border-right-color: #000;
+        border-bottom-color: #000;
+      }
+      
+      .win95-border {
+        box-shadow: inset 1px 1px #fff, inset -1px -1px #000, inset 2px 2px #dfdfdf, inset -2px -2px #808080;
+      }
+      .win95-border-inset {
+        box-shadow: inset 1px 1px #808080, inset -1px -1px #fff, inset 2px 2px #000, inset -2px -2px #dfdfdf;
+      }
+      .win95-border-outset {
+        box-shadow: inset 1px 1px #fff, inset -1px -1px #000, inset 2px 2px #dfdfdf, inset -2px -2px #808080;
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "@google/genai": "https://aistudiocdn.com/@google/genai@^1.30.0"
+  }
+}
+</script>
+</head>
+  <body class="bg-[#008080] h-screen w-screen overflow-hidden">
+    <div id="root" class="h-full w-full"></div>
+  </body>
+</html>
