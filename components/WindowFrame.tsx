@@ -11,7 +11,7 @@ interface WindowFrameProps {
   children: React.ReactNode;
 }
 
-const WindowFrame: React.FC<WindowFrameProps> = ({
+export const WindowFrame: React.FC<WindowFrameProps> = ({
   window,
   onClose,
   onMinimize,
@@ -71,6 +71,7 @@ const WindowFrame: React.FC<WindowFrameProps> = ({
         height: window.isMaximized ? 'calc(100% - 40px)' : window.size.height, // Subtract taskbar height approximation
       }}
       onMouseDown={() => onFocus(window.id)}
+      onContextMenu={(e) => e.stopPropagation()} // Prevent desktop context menu
     >
       {/* Title Bar */}
       <div
@@ -111,5 +112,3 @@ const WindowFrame: React.FC<WindowFrameProps> = ({
     </div>
   );
 };
-
-export default WindowFrame;

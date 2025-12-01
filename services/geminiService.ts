@@ -1,13 +1,19 @@
 import { GoogleGenAI } from "@google/genai";
 
 // Initialize the client with the API key from environment variables
-// Note: In a real production app, ensure this is handled securely.
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+// The build process (Vite) will replace process.env.API_KEY with the actual value
+const apiKey = process.env.API_KEY || '';
+const ai = new GoogleGenAI({ apiKey: apiKey });
 
 export const generateChatResponse = async (
   prompt: string, 
   history: { role: 'user' | 'model'; parts: { text: string }[] }[]
 ): Promise<string> => {
+  // Check if API key is missing
+  if (!apiKey) {
+    return "Error: API_KEY is missing.\n\nIf you are running this on Vercel, go to Settings > Environment Variables and add a variable named 'API_KEY' with your Google Gemini API key.\n\nIf running locally, create a .env file with API_KEY=your_key_here.";
+  }
+
   try {
     const model = 'gemini-2.5-flash';
     
@@ -23,6 +29,6 @@ export const generateChatResponse = async (
     return result.text || "Error: No response text generated.";
   } catch (error) {
     console.error("Gemini API Error:", error);
-    return "Error: Unable to connect to the Gemini network service.";
+    return "Error: Unable to connect to the Gemini network service. Please check your network connection and API usage limits.";
   }
 };

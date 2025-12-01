@@ -11,6 +11,7 @@ const DesktopIcon: React.FC<DesktopIconProps> = ({ label, icon: Icon, onClick })
   return (
     <div
       onClick={onClick}
+      onContextMenu={(e) => e.stopPropagation()} // Prevent desktop context menu
       className="flex flex-col items-center justify-center w-20 p-2 cursor-pointer group active:opacity-50"
     >
       <div className="mb-1">

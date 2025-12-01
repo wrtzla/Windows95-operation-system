@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { AppId, WindowState } from './types';
-import WindowFrame from './components/WindowFrame';
+import { WindowFrame } from './components/WindowFrame';
 import Taskbar from './components/Taskbar';
 import StartMenu from './components/StartMenu';
 import DesktopIcon from './components/DesktopIcon';
+import ContextMenu from './components/ContextMenu';
 import { IconNotepad, IconGemini, IconMinesweeper, IconComputer } from './components/Icons';
 
 // Apps
@@ -16,10 +17,14 @@ const App: React.FC = () => {
   const [activeWindowId, setActiveWindowId] = useState<string | null>(null);
   const [nextZIndex, setNextZIndex] = useState(1);
   const [isStartOpen, setIsStartOpen] = useState(false);
+  const [contextMenu, setContextMenu] = useState<{x: number, y: number} | null>(null);
 
   // Close start menu when clicking elsewhere
   useEffect(() => {
-    const handleClickOutside = () => setIsStartOpen(false);
+    const handleClickOutside = () => {
+        setIsStartOpen(false);
+        setContextMenu(null);
+    };
     document.addEventListener('click', handleClickOutside);
     return () => document.removeEventListener('click', handleClickOutside);
   }, []);
@@ -93,6 +98,20 @@ const App: React.FC = () => {
     ));
   };
 
+  const handleContextMenu = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsStartOpen(false);
+    setContextMenu({ x: e.clientX, y: e.clientY });
+  };
+
+  const handleContextAction = (action: string) => {
+    if (action === 'properties') {
+        const id = Date.now().toString();
+        // Simple alert for now, could be a full dialog later
+        alert("Windows 95 React System\n\nCopyright © 2025\n\nComputer:\n   ReactOS 95\n   Gemini Powered\n   640KB RAM");
+    }
+  };
+
   const renderAppContent = (appId: AppId) => {
     switch (appId) {
       case AppId.NOTEPAD: return <Notepad />;
@@ -103,7 +122,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="h-full w-full overflow-hidden relative font-sans text-sm select-none" onClick={() => setIsStartOpen(false)}>
+    <div 
+      className="h-full w-full overflow-hidden relative font-sans text-sm select-none" 
+      onContextMenu={handleContextMenu}
+    >
       
       {/* Desktop Icons */}
       <div className="absolute top-2 left-2 flex flex-col gap-4 z-0">
@@ -135,6 +157,16 @@ const App: React.FC = () => {
             onOpenApp={openWindow} 
          />
       </div>
+      
+      {/* Context Menu */}
+      {contextMenu && (
+        <ContextMenu 
+          x={contextMenu.x} 
+          y={contextMenu.y} 
+          onClose={() => setContextMenu(null)}
+          onAction={handleContextAction}
+        />
+      )}
 
       {/* Taskbar */}
       <Taskbar
@@ -148,7 +180,10 @@ const App: React.FC = () => {
                 minimizeWindow(id);
             }
         }}
-        onStartClick={() => setIsStartOpen(!isStartOpen)}
+        onStartClick={() => {
+            setIsStartOpen(!isStartOpen);
+            setContextMenu(null);
+        }}
         isStartOpen={isStartOpen}
       />
     </div>
