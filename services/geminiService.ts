@@ -1,3 +1,4 @@
+
 import { GoogleGenAI } from "@google/genai";
 
 // Initialize the client with the API key from environment variables
@@ -30,5 +31,39 @@ export const generateChatResponse = async (
   } catch (error) {
     console.error("Gemini API Error:", error);
     return "Error: Unable to connect to the Gemini network service. Please check your network connection and API usage limits.";
+  }
+};
+
+export const generateWebPage = async (url: string): Promise<string> => {
+  if (!apiKey) {
+    return "<h1 style='color: red; font-family: sans-serif; text-align: center;'>Error: API_KEY Missing</h1><p align='center'>Please configure your Gemini API Key to browse the simulated web.</p>";
+  }
+
+  try {
+    const model = 'gemini-2.5-flash';
+    const prompt = `You are a web server from 1995. The user is requesting the URL: "${url}".
+    
+    If the URL looks like a search query or a question, treat it as a search engine result page.
+    If it is a specific domain (e.g. microsoft.com, apple.com), generate a fictional 1990s version of that homepage.
+    
+    Rules:
+    1. Output ONLY valid HTML code for the content of the <body> tag. Do NOT include <head>, <body>, or <html> tags.
+    2. Use inline CSS styles for a retro 90s look (bright colors, basic fonts like Times New Roman or Courier).
+    3. Use <center>, <marquee>, <blink>, <hr>, and <table> tags freely.
+    4. Make it fun and nostalgic.
+    5. Ensure all links <a href="..."> just point to "#" or fake relative paths.
+    6. If it's a search, list 3-5 fictional 90s-themed results.
+    
+    Generate the HTML now.`;
+
+    const result = await ai.models.generateContent({
+      model: model,
+      contents: prompt,
+    });
+    
+    return result.text || "<center><h1>404 Not Found</h1><p>The server did not respond.</p></center>";
+  } catch (error) {
+    console.error("Gemini API Error:", error);
+    return "<center><h1>Connection Error</h1><p>Could not dial into the host.</p></center>";
   }
 };

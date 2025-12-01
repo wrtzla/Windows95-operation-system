@@ -1,7 +1,12 @@
+
 import React, { useState } from 'react';
 
-const Notepad: React.FC = () => {
-  const [text, setText] = useState('Welcome to Windows 95 React!\n\nThis is a simple notepad.');
+interface NotepadProps {
+  initialContent?: string;
+}
+
+const Notepad: React.FC<NotepadProps> = ({ initialContent }) => {
+  const [text, setText] = useState(initialContent || 'Welcome to Windows 95 React!\n\nThis is a simple notepad.');
 
   return (
     <div className="flex flex-col h-full w-full">
