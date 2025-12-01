@@ -9,7 +9,17 @@ export enum AppId {
   EXPLORER = 'explorer',
   RUN = 'run',
   INTERNET_EXPLORER = 'internet_explorer',
-  BLOG = 'blog'
+  BLOG = 'blog',
+  INSTALL_XP = 'install_xp',
+  INSTALL_7 = 'install_7',
+  INSTALL_10 = 'install_10'
+}
+
+export enum Theme {
+  WIN95 = 'win95',
+  WINXP = 'winxp',
+  WIN7 = 'win7',
+  WIN10 = 'win10'
 }
 
 export interface WindowState {

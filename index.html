@@ -6,12 +6,101 @@
     <title>Windows 95 React</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-      @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+      @import url('https://fonts.googleapis.com/css2?family=VT323&family=Segoe+UI:wght@400;700&display=swap');
       
+      :root {
+        /* Defaults (Win95) */
+        --desktop-bg: #008080;
+        --window-bg: #c0c0c0;
+        --window-header-bg: #000080;
+        --window-header-text: #ffffff;
+        --taskbar-bg: #c0c0c0;
+        --taskbar-border-top: #ffffff;
+        --start-btn-bg: #c0c0c0;
+        --start-btn-text: #000000;
+        --border-light: #ffffff;
+        --border-dark: #000000;
+        --border-mid: #808080;
+        --border-radius-win: 0px;
+        --border-radius-btn: 0px;
+        --font-ui: 'Segoe UI', sans-serif;
+        --close-btn-bg: #c0c0c0;
+        --close-btn-text: #000000;
+        --win-border-width: 2px;
+      }
+
+      /* Windows XP Theme */
+      .theme-winxp {
+        --desktop-bg: #0066CC; /* Bliss Blue-ish */
+        --window-bg: #ECE9D8;
+        --window-header-bg: linear-gradient(180deg, #0058EE 0%, #3593FF 8%, #288EFF 40%, #127DFF 100%);
+        --window-header-text: #ffffff;
+        --taskbar-bg: linear-gradient(180deg, #245DDA 0%, #1F52C4 100%);
+        --taskbar-border-top: #245DDA;
+        --start-btn-bg: linear-gradient(180deg, #3E9E3E 0%, #2E782E 100%);
+        --start-btn-text: #ffffff;
+        --border-light: #ffffff;
+        --border-dark: #003c74;
+        --border-mid: #9CB6D8;
+        --border-radius-win: 8px 8px 0 0;
+        --border-radius-btn: 3px;
+        --font-ui: 'Tahoma', sans-serif;
+        --close-btn-bg: #E44B36;
+        --close-btn-text: #ffffff;
+        --win-border-width: 3px;
+      }
+
+      /* Windows 7 Theme */
+      .theme-win7 {
+        --desktop-bg: #3B6EA5; /* Simple Aero Blue */
+        --window-bg: #F0F0F0;
+        --window-header-bg: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 40%, rgba(0,0,0,0.1) 100%);
+        --window-header-text: #000000;
+        --taskbar-bg: rgba(20, 30, 50, 0.85); /* Glassy dark */
+        --taskbar-border-top: rgba(255,255,255,0.3);
+        --start-btn-bg: radial-gradient(circle, #3886a8 0%, #1e3c50 100%);
+        --start-btn-text: #ffffff;
+        --border-light: rgba(255,255,255,0.5);
+        --border-dark: rgba(0,0,0,0.3);
+        --border-mid: rgba(0,0,0,0.1);
+        --border-radius-win: 8px;
+        --border-radius-btn: 4px;
+        --font-ui: 'Segoe UI', sans-serif;
+        --close-btn-bg: #D24726;
+        --close-btn-text: #ffffff;
+        --win-border-width: 1px;
+      }
+
+      /* Windows 10 Theme */
+      .theme-win10 {
+        --desktop-bg: #004275;
+        --window-bg: #ffffff;
+        --window-header-bg: #ffffff;
+        --window-header-text: #000000;
+        --taskbar-bg: #101010;
+        --taskbar-border-top: #333333;
+        --start-btn-bg: #101010;
+        --start-btn-text: #ffffff;
+        --border-light: #cccccc;
+        --border-dark: #cccccc;
+        --border-mid: #cccccc;
+        --border-radius-win: 0px;
+        --border-radius-btn: 0px;
+        --font-ui: 'Segoe UI', sans-serif;
+        --close-btn-bg: #ffffff;
+        --close-btn-text: #000000;
+        --win-border-width: 1px;
+      }
+
+      /* Transitions */
+      body, div, button {
+        transition: background-color 0.5s ease, border-color 0.5s ease, border-radius 0.5s ease;
+      }
+
       /* Custom cursor for that authentic feel */
       body {
         cursor: default;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-family: var(--font-ui);
         user-select: none;
         overflow: hidden;
       }
@@ -46,6 +135,29 @@
       .win95-border-outset {
         box-shadow: inset 1px 1px #fff, inset -1px -1px #000, inset 2px 2px #dfdfdf, inset -2px -2px #808080;
       }
+
+      /* Theme specific overrides for shadow/border styles could go here, 
+         but we will handle main structure via vars and fallback to simple borders for non-95 themes */
+      .theme-winxp .win95-border-outset,
+      .theme-win7 .win95-border-outset,
+      .theme-win10 .win95-border-outset {
+         box-shadow: none;
+         border: 1px solid var(--border-mid);
+      }
+      
+      .theme-winxp .win95-border-inset,
+      .theme-win7 .win95-border-inset,
+      .theme-win10 .win95-border-inset {
+         box-shadow: none;
+         border: 1px solid var(--border-mid);
+      }
+
+      /* Windows 7 Glass Effect */
+      .theme-win7 .glass-frame {
+        background: rgba(255, 255, 255, 0.4);
+        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+      }
     </style>
   <script type="importmap">
 {
@@ -61,7 +173,7 @@
 }
 </script>
 </head>
-  <body class="bg-[#008080] h-screen w-screen overflow-hidden">
+  <body class="h-screen w-screen overflow-hidden">
     <div id="root" class="h-full w-full"></div>
     <script type="module" src="/index.tsx"></script>
   </body>

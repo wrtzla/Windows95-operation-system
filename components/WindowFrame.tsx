@@ -1,9 +1,10 @@
 
 import React, { useRef, useState, useEffect } from 'react';
-import { WindowState } from '../types';
+import { WindowState, Theme } from '../types';
 
 interface WindowFrameProps {
   window: WindowState;
+  theme: Theme;
   onClose: (id: string) => void;
   onMinimize: (id: string) => void;
   onMaximize: (id: string) => void;
@@ -15,6 +16,7 @@ interface WindowFrameProps {
 
 export const WindowFrame: React.FC<WindowFrameProps> = ({
   window,
+  theme,
   onClose,
   onMinimize,
   onMaximize,
@@ -109,54 +111,77 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
 
   if (!window.isOpen || window.isMinimized) return null;
 
+  const isWin10 = theme === Theme.WIN10;
+  const isWin7 = theme === Theme.WIN7;
+
   return (
     <div
       ref={windowRef}
-      className={`absolute flex flex-col bg-[#c0c0c0] p-1 ${window.isMaximized ? 'inset-0 w-full h-full' : 'win95-border-outset'}`}
+      className={`absolute flex flex-col p-1 ${window.isMaximized ? 'inset-0 w-full h-full' : 'win95-border-outset'}`}
       style={{
         zIndex: window.zIndex,
         left: window.isMaximized ? 0 : window.position.x,
         top: window.isMaximized ? 0 : window.position.y,
         width: window.isMaximized ? '100%' : window.size.width,
-        height: window.isMaximized ? 'calc(100% - 40px)' : window.size.height, // Subtract taskbar height approximation
+        height: window.isMaximized ? 'calc(100% - 40px)' : window.size.height,
+        backgroundColor: 'var(--window-bg)',
+        border: `${window.isMaximized ? 0 : 'var(--win-border-width)'} solid var(--window-bg)`,
+        borderRadius: window.isMaximized ? 0 : 'var(--border-radius-win)',
+        boxShadow: isWin7 && !window.isMaximized ? '0 10px 20px rgba(0,0,0,0.4)' : undefined
       }}
       onMouseDown={() => onFocus(window.id)}
-      onContextMenu={(e) => e.stopPropagation()} // Prevent desktop context menu
+      onContextMenu={(e) => e.stopPropagation()} 
     >
       {/* Title Bar */}
       <div
-        className={`flex items-center justify-between px-1 py-0.5 mb-1 cursor-default select-none ${
-          window.zIndex >= 10 ? 'bg-[#000080]' : 'bg-[#808080]'
-        }`}
+        className={`flex items-center justify-between px-2 py-1 mb-1 cursor-default select-none transition-colors duration-300`}
+        style={{
+            background: 'var(--window-header-bg)',
+            color: 'var(--window-header-text)',
+            borderRadius: window.isMaximized ? 0 : 'var(--border-radius-win) var(--border-radius-win) 0 0'
+        }}
         onMouseDown={handleMouseDown}
       >
-        <div className="flex items-center gap-1 text-white font-bold tracking-wide truncate">
-          <span className="text-sm px-1">{window.title}</span>
+        <div className="flex items-center gap-1 font-bold tracking-wide truncate">
+          <span className="text-sm">{window.title}</span>
         </div>
-        <div className="flex gap-1">
-          <button
-            onClick={(e) => { e.stopPropagation(); onMinimize(window.id); }}
-            className="w-5 h-4 bg-[#c0c0c0] win95-border-outset flex items-center justify-center active:win95-border-inset"
-          >
-            <div className="w-2 h-0.5 bg-black translate-y-1"></div>
-          </button>
-          <button
-            onClick={(e) => { e.stopPropagation(); onMaximize(window.id); }}
-            className="w-5 h-4 bg-[#c0c0c0] win95-border-outset flex items-center justify-center active:win95-border-inset"
-          >
-            <div className="w-2.5 h-2 border border-black border-t-[2px]"></div>
-          </button>
+        <div className="flex gap-1 items-center">
+          {!isWin10 && (
+            <>
+            <button
+                onClick={(e) => { e.stopPropagation(); onMinimize(window.id); }}
+                className="w-5 h-5 flex items-center justify-center bg-[var(--close-btn-bg)]"
+                style={{ borderRadius: 'var(--border-radius-btn)', border: '1px solid gray' }}
+            >
+                <div className="w-2 h-0.5 bg-black translate-y-1"></div>
+            </button>
+            <button
+                onClick={(e) => { e.stopPropagation(); onMaximize(window.id); }}
+                className="w-5 h-5 flex items-center justify-center bg-[var(--close-btn-bg)]"
+                style={{ borderRadius: 'var(--border-radius-btn)', border: '1px solid gray' }}
+            >
+                <div className="w-2.5 h-2 border border-black border-t-[2px]"></div>
+            </button>
+            </>
+          )}
+
           <button
             onClick={(e) => { e.stopPropagation(); onClose(window.id); }}
-            className="w-5 h-4 bg-[#c0c0c0] win95-border-outset flex items-center justify-center active:win95-border-inset ml-1"
+            className="w-5 h-5 flex items-center justify-center ml-1 font-bold"
+            style={{ 
+                backgroundColor: 'var(--close-btn-bg)', 
+                color: 'var(--close-btn-text)',
+                borderRadius: 'var(--border-radius-btn)',
+                border: isWin10 ? 'none' : '1px solid gray'
+            }}
           >
-            <span className="text-black text-xs font-bold -mt-0.5">✕</span>
+            ✕
           </button>
         </div>
       </div>
 
       {/* Content Area */}
-      <div className="flex-1 bg-white relative overflow-hidden win95-border-inset text-black">
+      <div className="flex-1 relative overflow-hidden win95-border-inset" style={{ backgroundColor: '#fff', color: '#000' }}>
         {children}
       </div>
 
@@ -178,7 +203,6 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
             className="absolute right-0 bottom-0 w-4 h-4 cursor-nwse-resize z-20 flex items-end justify-end p-[1px]"
             onMouseDown={(e) => handleResizeStart(e, 'se')}
           >
-             {/* Visual grip dots/lines */}
              <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
                <path d="M8 2L9 3V9H3L2 8H8V2Z" fill="#808080"/>
                <path d="M5 5L6 6V9H3L2 8H5V5Z" fill="#808080"/>

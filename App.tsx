@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppId, WindowState } from './types';
+import { AppId, WindowState, Theme } from './types';
 import { WindowFrame } from './components/WindowFrame';
 import Taskbar from './components/Taskbar';
 import StartMenu from './components/StartMenu';
 import DesktopIcon from './components/DesktopIcon';
 import ContextMenu from './components/ContextMenu';
-import { IconNotepad, IconGemini, IconMinesweeper, IconComputer, IconCalculator, IconPaint, IconIE, IconBlog } from './components/Icons';
+import { IconNotepad, IconGemini, IconMinesweeper, IconComputer, IconCalculator, IconPaint, IconIE, IconBlog, IconXP, IconWin7, IconWin10 } from './components/Icons';
 
 // Apps
 import Notepad from './apps/Notepad';
@@ -24,6 +24,7 @@ const App: React.FC = () => {
   const [nextZIndex, setNextZIndex] = useState(1);
   const [isStartOpen, setIsStartOpen] = useState(false);
   const [contextMenu, setContextMenu] = useState<{x: number, y: number} | null>(null);
+  const [theme, setTheme] = useState<Theme>(Theme.WIN95);
 
   // Close start menu when clicking elsewhere
   useEffect(() => {
@@ -43,8 +44,22 @@ const App: React.FC = () => {
         window.open('http://blog.teamkg.club/', '_blank');
         return;
     }
+
+    // Handle Theme Switches
+    if (appId === AppId.INSTALL_XP) {
+        if (confirm("Install Windows XP upgrade?")) setTheme(Theme.WINXP);
+        return;
+    }
+    if (appId === AppId.INSTALL_7) {
+        if (confirm("Install Windows 7 upgrade?")) setTheme(Theme.WIN7);
+        return;
+    }
+    if (appId === AppId.INSTALL_10) {
+        if (confirm("Install Windows 10 upgrade?")) setTheme(Theme.WIN10);
+        return;
+    }
     
-    // Check if Run is already open, if so focus it (optional, but typical for single instance dialogs)
+    // Check if Run is already open
     if (appId === AppId.RUN) {
         const existingRun = windows.find(w => w.appId === AppId.RUN);
         if (existingRun) {
@@ -75,7 +90,7 @@ const App: React.FC = () => {
         newWindow = { ...baseConfig, title: 'Untitled - Notepad', size: { width: 400, height: 300 } };
         break;
       case AppId.GEMINI:
-        newWindow = { ...baseConfig, title: 'Gemini Assistant 95', size: { width: 500, height: 400 } };
+        newWindow = { ...baseConfig, title: 'Gemini Assistant', size: { width: 500, height: 400 } };
         break;
       case AppId.MINESWEEPER:
         newWindow = { ...baseConfig, title: 'Minesweeper', size: { width: 300, height: 340 } };
@@ -115,7 +130,6 @@ const App: React.FC = () => {
   };
 
   const maximizeWindow = (id: string) => {
-     // Run dialog is not maximizable in this implementation for simplicity
      const win = windows.find(w => w.id === id);
      if (win && win.appId === AppId.RUN) return;
 
@@ -151,7 +165,7 @@ const App: React.FC = () => {
 
   const handleContextAction = (action: string) => {
     if (action === 'properties') {
-        alert("Windows 95 React System\n\nCopyright © 2025\n\nComputer:\n   ReactOS 95\n   Gemini Powered\n   640KB RAM");
+        alert("Windows React OS System\n\nCopyright © 2025\n\nComputer:\n   ReactOS\n   Gemini Powered");
     }
   };
 
@@ -168,12 +182,12 @@ const App: React.FC = () => {
     else if (cmd === 'gemini') { openWindow(AppId.GEMINI); found = true; }
     else if (cmd === 'iexplore' || cmd === 'internet') { openWindow(AppId.INTERNET_EXPLORER); found = true; }
     else if (cmd === 'blog') { openWindow(AppId.BLOG); found = true; }
-    else if (cmd === 'cmd') { alert('Command Prompt not installed.'); } // Placeholder
+    else if (cmd === 'cmd') { alert('Command Prompt not installed.'); }
     
     if (found) {
         closeWindow(windowId);
     } else {
-        alert(`Cannot find file '${command}' (or one of its components). Make sure the path and filename are correct and that all required libraries are available.`);
+        alert(`Cannot find file '${command}'.`);
     }
   };
 
@@ -193,22 +207,31 @@ const App: React.FC = () => {
 
   return (
     <div 
-      className="h-full w-full overflow-hidden relative font-sans text-sm select-none bg-[#008080]" 
+      className={`h-full w-full overflow-hidden relative font-sans text-sm select-none theme-${theme}`} 
+      style={{ backgroundColor: 'var(--desktop-bg)', fontFamily: 'var(--font-ui)' }}
       onContextMenu={handleContextMenu}
     >
       {/* Wallpaper / Background Text */}
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
-        <h1 className="text-9xl font-black text-[#006666] select-none opacity-50 tracking-widest transform -rotate-12 whitespace-nowrap">
+        <h1 className="text-9xl font-black select-none opacity-20 tracking-widest transform -rotate-12 whitespace-nowrap text-white">
             Christof
         </h1>
       </div>
       
       {/* Desktop Icons */}
-      <div className="absolute top-2 left-2 flex flex-col gap-4 z-10">
+      <div className="absolute top-2 left-2 flex flex-col gap-4 z-10 flex-wrap h-[90%] content-start">
         <DesktopIcon label="My Computer" icon={IconComputer} onClick={() => openWindow(AppId.EXPLORER)} />
         <DesktopIcon label="The Internet" icon={IconIE} onClick={() => openWindow(AppId.INTERNET_EXPLORER)} />
         <DesktopIcon label="My Blog" icon={IconBlog} onClick={() => openWindow(AppId.BLOG)} />
         <DesktopIcon label="Gemini AI" icon={IconGemini} onClick={() => openWindow(AppId.GEMINI)} />
+        
+        {/* Installers */}
+        <div className="mt-4" />
+        <DesktopIcon label="Install XP" icon={IconXP} onClick={() => openWindow(AppId.INSTALL_XP)} />
+        <DesktopIcon label="Install Win7" icon={IconWin7} onClick={() => openWindow(AppId.INSTALL_7)} />
+        <DesktopIcon label="Install Win10" icon={IconWin10} onClick={() => openWindow(AppId.INSTALL_10)} />
+
+        <div className="mt-4" />
         <DesktopIcon label="Notepad" icon={IconNotepad} onClick={() => openWindow(AppId.NOTEPAD)} />
         <DesktopIcon label="Paint" icon={IconPaint} onClick={() => openWindow(AppId.PAINT)} />
         <DesktopIcon label="Calculator" icon={IconCalculator} onClick={() => openWindow(AppId.CALCULATOR)} />
@@ -220,6 +243,7 @@ const App: React.FC = () => {
         <WindowFrame
           key={win.id}
           window={win}
+          theme={theme}
           onClose={closeWindow}
           onMinimize={minimizeWindow}
           onMaximize={maximizeWindow}
@@ -253,6 +277,7 @@ const App: React.FC = () => {
       <Taskbar
         windows={windows}
         activeWindowId={activeWindowId}
+        theme={theme}
         onWindowClick={(id) => {
             const win = windows.find(w => w.id === id);
             if (win?.isMinimized || activeWindowId !== id) {
