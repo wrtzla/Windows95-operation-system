@@ -6,7 +6,7 @@ import Taskbar from './components/Taskbar';
 import StartMenu from './components/StartMenu';
 import DesktopIcon from './components/DesktopIcon';
 import ContextMenu from './components/ContextMenu';
-import { IconNotepad, IconGemini, IconMinesweeper, IconComputer, IconCalculator, IconPaint, IconIE } from './components/Icons';
+import { IconNotepad, IconGemini, IconMinesweeper, IconComputer, IconCalculator, IconPaint, IconIE, IconBlog } from './components/Icons';
 
 // Apps
 import Notepad from './apps/Notepad';
@@ -37,6 +37,12 @@ const App: React.FC = () => {
 
   const openWindow = (appId: AppId, data?: any) => {
     setIsStartOpen(false);
+
+    // Handle External Links
+    if (appId === AppId.BLOG) {
+        window.open('http://blog.teamkg.club/', '_blank');
+        return;
+    }
     
     // Check if Run is already open, if so focus it (optional, but typical for single instance dialogs)
     if (appId === AppId.RUN) {
@@ -131,6 +137,12 @@ const App: React.FC = () => {
     ));
   };
 
+  const resizeWindow = (id: string, width: number, height: number) => {
+    setWindows(windows.map(w =>
+      w.id === id ? { ...w, size: { width: Math.max(200, width), height: Math.max(150, height) } } : w
+    ));
+  };
+
   const handleContextMenu = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsStartOpen(false);
@@ -155,6 +167,7 @@ const App: React.FC = () => {
     else if (cmd === 'explorer') { openWindow(AppId.EXPLORER); found = true; }
     else if (cmd === 'gemini') { openWindow(AppId.GEMINI); found = true; }
     else if (cmd === 'iexplore' || cmd === 'internet') { openWindow(AppId.INTERNET_EXPLORER); found = true; }
+    else if (cmd === 'blog') { openWindow(AppId.BLOG); found = true; }
     else if (cmd === 'cmd') { alert('Command Prompt not installed.'); } // Placeholder
     
     if (found) {
@@ -180,14 +193,21 @@ const App: React.FC = () => {
 
   return (
     <div 
-      className="h-full w-full overflow-hidden relative font-sans text-sm select-none" 
+      className="h-full w-full overflow-hidden relative font-sans text-sm select-none bg-[#008080]" 
       onContextMenu={handleContextMenu}
     >
+      {/* Wallpaper / Background Text */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 overflow-hidden">
+        <h1 className="text-9xl font-black text-[#006666] select-none opacity-50 tracking-widest transform -rotate-12 whitespace-nowrap">
+            Christof
+        </h1>
+      </div>
       
       {/* Desktop Icons */}
-      <div className="absolute top-2 left-2 flex flex-col gap-4 z-0">
+      <div className="absolute top-2 left-2 flex flex-col gap-4 z-10">
         <DesktopIcon label="My Computer" icon={IconComputer} onClick={() => openWindow(AppId.EXPLORER)} />
         <DesktopIcon label="The Internet" icon={IconIE} onClick={() => openWindow(AppId.INTERNET_EXPLORER)} />
+        <DesktopIcon label="My Blog" icon={IconBlog} onClick={() => openWindow(AppId.BLOG)} />
         <DesktopIcon label="Gemini AI" icon={IconGemini} onClick={() => openWindow(AppId.GEMINI)} />
         <DesktopIcon label="Notepad" icon={IconNotepad} onClick={() => openWindow(AppId.NOTEPAD)} />
         <DesktopIcon label="Paint" icon={IconPaint} onClick={() => openWindow(AppId.PAINT)} />
@@ -205,6 +225,7 @@ const App: React.FC = () => {
           onMaximize={maximizeWindow}
           onFocus={focusWindow}
           onMove={moveWindow}
+          onResize={resizeWindow}
         >
           {renderAppContent(win)}
         </WindowFrame>

@@ -8,7 +8,8 @@ export enum AppId {
   PAINT = 'paint',
   EXPLORER = 'explorer',
   RUN = 'run',
-  INTERNET_EXPLORER = 'internet_explorer'
+  INTERNET_EXPLORER = 'internet_explorer',
+  BLOG = 'blog'
 }
 
 export interface WindowState {

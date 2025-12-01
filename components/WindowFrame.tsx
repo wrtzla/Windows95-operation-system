@@ -1,3 +1,4 @@
+
 import React, { useRef, useState, useEffect } from 'react';
 import { WindowState } from '../types';
 
@@ -8,6 +9,7 @@ interface WindowFrameProps {
   onMaximize: (id: string) => void;
   onFocus: (id: string) => void;
   onMove: (id: string, x: number, y: number) => void;
+  onResize: (id: string, width: number, height: number) => void;
   children: React.ReactNode;
 }
 
@@ -18,24 +20,58 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
   onMaximize,
   onFocus,
   onMove,
+  onResize,
   children
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 });
+  
+  // Resize state
+  const [isResizing, setIsResizing] = useState(false);
+  const [resizeDirection, setResizeDirection] = useState<string | null>(null);
+  const [initialResizeState, setInitialResizeState] = useState({
+    mouseX: 0,
+    mouseY: 0,
+    width: 0,
+    height: 0
+  });
+
   const windowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
+      // Handle Moving
       if (isDragging) {
         onMove(window.id, e.clientX - dragOffset.x, e.clientY - dragOffset.y);
+      }
+
+      // Handle Resizing
+      if (isResizing && resizeDirection) {
+        e.preventDefault();
+        const deltaX = e.clientX - initialResizeState.mouseX;
+        const deltaY = e.clientY - initialResizeState.mouseY;
+
+        let newWidth = initialResizeState.width;
+        let newHeight = initialResizeState.height;
+
+        if (resizeDirection.includes('e')) {
+            newWidth = initialResizeState.width + deltaX;
+        }
+        if (resizeDirection.includes('s')) {
+            newHeight = initialResizeState.height + deltaY;
+        }
+
+        onResize(window.id, newWidth, newHeight);
       }
     };
 
     const handleMouseUp = () => {
       setIsDragging(false);
+      setIsResizing(false);
+      setResizeDirection(null);
     };
 
-    if (isDragging) {
+    if (isDragging || isResizing) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
     }
@@ -44,7 +80,7 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-  }, [isDragging, dragOffset, onMove, window.id]);
+  }, [isDragging, dragOffset, isResizing, resizeDirection, initialResizeState, onMove, onResize, window.id]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     onFocus(window.id);
@@ -55,6 +91,20 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
         y: e.clientY - window.position.y
       });
     }
+  };
+
+  const handleResizeStart = (e: React.MouseEvent, direction: string) => {
+      e.stopPropagation();
+      e.preventDefault();
+      onFocus(window.id);
+      setIsResizing(true);
+      setResizeDirection(direction);
+      setInitialResizeState({
+          mouseX: e.clientX,
+          mouseY: e.clientY,
+          width: window.size.width,
+          height: window.size.height
+      });
   };
 
   if (!window.isOpen || window.isMinimized) return null;
@@ -109,6 +159,33 @@ export const WindowFrame: React.FC<WindowFrameProps> = ({
       <div className="flex-1 bg-white relative overflow-hidden win95-border-inset text-black">
         {children}
       </div>
+
+      {/* Resize Handles (Only show if not maximized) */}
+      {!window.isMaximized && (
+        <>
+          {/* Right Handle */}
+          <div 
+            className="absolute right-0 top-0 bottom-4 w-1 cursor-ew-resize z-10"
+            onMouseDown={(e) => handleResizeStart(e, 'e')}
+          />
+          {/* Bottom Handle */}
+          <div 
+            className="absolute left-0 bottom-0 right-4 h-1 cursor-ns-resize z-10"
+            onMouseDown={(e) => handleResizeStart(e, 's')}
+          />
+          {/* Bottom Right Corner Handle (Grip) */}
+          <div 
+            className="absolute right-0 bottom-0 w-4 h-4 cursor-nwse-resize z-20 flex items-end justify-end p-[1px]"
+            onMouseDown={(e) => handleResizeStart(e, 'se')}
+          >
+             {/* Visual grip dots/lines */}
+             <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+               <path d="M8 2L9 3V9H3L2 8H8V2Z" fill="#808080"/>
+               <path d="M5 5L6 6V9H3L2 8H5V5Z" fill="#808080"/>
+             </svg>
+          </div>
+        </>
+      )}
     </div>
   );
 };
